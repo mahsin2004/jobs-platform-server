@@ -30,7 +30,12 @@ async function run() {
     await client.connect();
 
    //Database Collection...
-   
+   const jobCollection = client.db("jobDB").collection("jobs");
+
+   app.get("/jobs", async(req, res) => {
+      const result = await jobCollection.find().toArray();
+      res.send(result)
+   })
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
