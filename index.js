@@ -49,7 +49,7 @@ run().catch(console.dir);
 
 
 app.get("/", (req, res) => {
-    res.send("Hello Users!");
+    res.send("This is jobs platform server!");
 });
 
 app.listen(port, (req, res) => {
