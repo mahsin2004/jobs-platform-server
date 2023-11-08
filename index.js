@@ -10,7 +10,7 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5000'],
+  origin: ['https://jobs-platform-client.web.app', 'https://jobs-platform-server.vercel.app'],
   credentials: true,
 }));
 app.use(express.json());
@@ -64,6 +64,10 @@ async function run() {
     app.post("/applied", async (req, res) => {
       const user = req.body
       const result = await appliedCollection.insertOne(user);
+      res.send(result);
+    });
+    app.get("/applied", async(req, res) => {
+      const result = await appliedCollection.find().toArray();
       res.send(result);
     });
 
