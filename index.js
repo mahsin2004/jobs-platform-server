@@ -2,7 +2,7 @@ const express = require("express");
 const cors = require("cors");
 const jwt = require("jsonwebtoken");
 const cookieParser = require('cookie-parser');
-const { MongoClient, ServerApiVersion } = require('mongodb');
+const { MongoClient, ServerApiVersion, ObjectId } = require('mongodb');
 require('dotenv').config();
 
 const app = express();
@@ -48,6 +48,7 @@ async function run() {
   try {
     await client.connect();
     const jobCollection = client.db("jobDB").collection("jobs");
+    const appliedCollection = client.db("jobDB").collection("applied");
 
     app.get("/jobs", async (req, res) => {
       const result = await jobCollection.find().toArray();
@@ -57,6 +58,12 @@ async function run() {
     app.post("/jobs", async (req, res) => {
       const user = req.body
       const result = await jobCollection.insertOne(user);
+      res.send(result);
+    });
+
+    app.post("/applied", async (req, res) => {
+      const user = req.body
+      const result = await appliedCollection.insertOne(user);
       res.send(result);
     });
 
@@ -79,6 +86,36 @@ async function run() {
       res.clearCookie('token', {maxAge: 0}).send({'succuss': true})
     })
 
+    app.put("/jobs/:id", async (req, res) => {
+      const id = req.params.id;
+      const job = req.body;
+      const query = { _id: new ObjectId(id) };
+      const options = { upsert: true };
+      const updateJob = {
+        $set: {
+          application_deadline: job.application_deadline,
+          email: job.email,
+          job_applicants_number: job.job_applicants_number,
+          job_banner: job.job_banner,
+          job_category: job.job_category,
+          job_description: job.job_description,
+          job_posting_date: job.job_posting_date,  
+          job_title: job.job_title,  
+          logo: job.logo,  
+          salary_range: job.salary_range,  
+          user_name: job.user_name,  
+        },
+      };
+      const result = await jobCollection.updateOne(query, updateJob, options);
+      res.send(result)
+    });
+
+    app.delete("/jobs/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await jobCollection.deleteOne(query);
+      res.send(result);
+    });
 
     // Send a ping to confirm a successful connection
     await client.db("admin").command({ ping: 1 });
