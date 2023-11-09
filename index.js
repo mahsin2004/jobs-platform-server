@@ -18,20 +18,7 @@ app.use(cookieParser());
 
 
 //Custom middleware
-const verifyToken = (req, res, next) => {
-  const token = req?.cookies?.token
-  if(!token){
-    return res.status(401).send({massage:"unauthorized access"})
-  }
-  jwt.verify(token, process.env.USER_ACCESS_TOKEN, function(err, decoded) {
-    if(err){
-      return res.status(401).send({massage:"unauthorized access"})
-    }
-    req.user = decoded
-    next()
-  });
-  
-}
+
 
 // MongoDB Connection
 const uri = `mongodb+srv://${process.env.USER_NAME}:${process.env.USER_PASSWORD}@cluster0.mowydsq.mongodb.net/?retryWrites=true&w=majority`;
@@ -72,16 +59,6 @@ async function run() {
     });
 
     // Create JWT or Json web token and set cookie
-    app.post("/jwt", async(req, res) => {
-      const user = req.body
-      const token = jwt.sign(user, process.env.USER_ACCESS_TOKEN, {expiresIn: '1h'})
-      res.cookie('token', token, {
-        httpOnly: true,
-        secure: true,
-        sameSite: true,
-      })
-      .send({'success': true})
-    })
 
 
     // When log out json web token clear from cookie
