@@ -66,8 +66,15 @@ async function run() {
       const result = await appliedCollection.insertOne(user);
       res.send(result);
     });
-    app.get("/applied", async(req, res) => {
-      const result = await appliedCollection.find().toArray();
+    app.get("/applied", verifyToken, async(req, res) => {
+      if(req.user.email !== req.query.email){
+        res.status(403).send({massage: "forbidden access"})
+      }
+      let query = {};
+      if(req.query?.email){
+        query = {email: req.query.email}
+      }
+      const result = await appliedCollection.find(query).toArray();
       res.send(result);
     });
 
