@@ -7,7 +7,10 @@ const port = process.env.PORT || 5000;
 
 // Middleware
 app.use(cors({
-  origin: ['https://jobs-platform-client.web.app', 'https://jobs-platform-server.vercel.app'],
+  origin: [
+    'https://jobs-platform-client.web.app', 'https://jobs-platform-server.vercel.app'
+    // 'http://localhost:5173', 'http://localhost:5000'
+  ],
 }));
 app.use(express.json());
 
@@ -48,8 +51,23 @@ async function run() {
       const result = await appliedCollection.insertOne(user);
       res.send(result);
     });
+
     app.get("/applied", async(req, res) => {
       const result = await appliedCollection.find().toArray();
+      res.send(result);
+    });
+
+    app.get("/applied/:email", async(req, res) => {
+      const email = req.params.email;
+      const applied = { email: email}
+      const result = await appliedCollection.find(applied).toArray();
+      res.send(result);
+    });
+
+    app.delete("/applied/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = { _id: new ObjectId(id) };
+      const result = await appliedCollection.deleteOne(query);
       res.send(result);
     });
 
@@ -95,7 +113,7 @@ async function run() {
 
     // Send a ping to confirm a successful connection
     // await client.db("admin").command({ ping: 1 });
-    console.log("Pinged your deployment. You successfully connected to MongoDB!");
+    // console.log("Pinged your deployment. You successfully connected to MongoDB!");
   } finally {
     // Ensure that the client will close when you finish/error
     // await client.close();
